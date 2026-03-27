@@ -130,5 +130,13 @@ if __name__ == "__main__":
     print("🚀 Iniciando RunPod worker...", flush=True)
     print("✅ Worker listo para recibir requests", flush=True)
     
-    # Mantener el proceso vivo
-    runpod.serverless.start({"handler": handler})
+    try:
+        # Mantener el proceso vivo indefinidamente
+        runpod.serverless.start({"handler": handler})
+    except KeyboardInterrupt:
+        print("Worker detenido por el usuario", flush=True)
+    except Exception as e:
+        print(f"❌ Error en el worker: {str(e)}", flush=True)
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
