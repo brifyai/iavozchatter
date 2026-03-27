@@ -46,3 +46,18 @@ checkpoints/
 
 # Ignore generated sample .wav files
 **/*.wav
+
+# Test outputs
+outputs/
+output*.wav
+test_output/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~

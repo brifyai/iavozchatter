@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  chatterbox-tts:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: chatterbox-tts-es:latest
+    container_name: chatterbox-tts-local
+    
+    # GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # Variables de entorno
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - PYTHONUNBUFFERED=1
+      - HF_TOKEN=${HF_TOKEN}
+      
+      # Simular job de RunPod para testing
+      - RUNPOD_WEBHOOK_GET_JOB={"input":{"texto":"Hola, esta es una prueba con docker-compose"}}
+    
+    # Volúmenes para desarrollo
+    volumes:
+      - ./src:/app/src
+      - ./runpod_handler.py:/app/runpod_handler.py
+      - ./outputs:/app/outputs
+    
+    # Comando
+    command: python -u runpod_handler.py
+    
+    # Restart policy
+    restart: unless-stopped
