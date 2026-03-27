@@ -11,20 +11,24 @@ import io
 import soundfile as sf
 from pathlib import Path
 import os
+import sys
 
 from src.chatterbox.mtl_tts import ChatterboxMultilingualTTS
 
 
 # Cargar modelo globalmente (una sola vez)
-print("🚀 Iniciando Chatterbox TTS en español...")
+print("🚀 Iniciando Chatterbox TTS en español...", flush=True)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Dispositivo: {DEVICE}")
+print(f"Dispositivo: {DEVICE}", flush=True)
 
-MODEL = ChatterboxMultilingualTTS.from_pretrained(DEVICE)
-SAMPLE_RATE = MODEL.sr
-LANGUAGE = "es"
-
-print(f"✅ Modelo cargado. Frecuencia: {SAMPLE_RATE} Hz")
+try:
+    MODEL = ChatterboxMultilingualTTS.from_pretrained(DEVICE)
+    SAMPLE_RATE = MODEL.sr
+    LANGUAGE = "es"
+    print(f"✅ Modelo cargado. Frecuencia: {SAMPLE_RATE} Hz", flush=True)
+except Exception as e:
+    print(f"❌ Error al cargar modelo: {str(e)}", flush=True)
+    sys.exit(1)
 
 
 def generar_audio(texto: str, params: dict) -> dict:
@@ -54,7 +58,7 @@ def generar_audio(texto: str, params: dict) -> dict:
             if DEVICE == "cuda":
                 torch.cuda.manual_seed_all(semilla)
         
-        print(f"Generando: '{texto[:50]}...'")
+        print(f"Generando: '{texto[:50]}...'", flush=True)
         
         # Generar audio
         wav = MODEL.generate(
@@ -82,7 +86,7 @@ def generar_audio(texto: str, params: dict) -> dict:
         }
         
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f"❌ Error: {str(e)}", flush=True)
         raise Exception(f"Error al generar audio: {str(e)}")
 
 
@@ -123,5 +127,8 @@ def handler(job):
 
 # Iniciar el worker de RunPod
 if __name__ == "__main__":
-    print("🚀 Iniciando RunPod worker...")
+    print("🚀 Iniciando RunPod worker...", flush=True)
+    print("✅ Worker listo para recibir requests", flush=True)
+    
+    # Mantener el proceso vivo
     runpod.serverless.start({"handler": handler})
