@@ -10,25 +10,27 @@ RUN apt-get update && apt-get install -y \
     git-lfs \
     libsndfile1 \
     ffmpeg \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar requirements
+# Copiar requirements primero (para cache de Docker)
 COPY requirements.txt .
 
 # Instalar dependencias de Python
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir runpod
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir runpod
 
 # Copiar código fuente
 COPY src/ /app/src/
 COPY runpod_handler.py /app/
 
-# Descargar modelo (opcional - se puede hacer en runtime)
-# RUN python -c "from src.chatterbox.mtl_tts import ChatterboxMultilingualTTS; ChatterboxMultilingualTTS.from_pretrained('cuda')"
-
 # Configurar variables de entorno
 ENV PYTHONUNBUFFERED=1
 ENV CUDA_VISIBLE_DEVICES=0
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python -c "import torch; print(torch.cuda.is_available())" || exit 1
 
 # Comando de inicio
 CMD ["python", "-u", "runpod_handler.py"]

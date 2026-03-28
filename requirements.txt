@@ -11,6 +11,9 @@ silero-vad==5.1.2
 conformer==0.3.2
 safetensors
 soundfile
+fastapi
+uvicorn[standard]
+runpod
 
 # Optional language-specific dependencies
 # Uncomment the ones you need for specific languages:
